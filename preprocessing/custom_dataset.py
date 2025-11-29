@@ -9,7 +9,7 @@ class CustomDataset(Dataset):
     def __init__(self, data_files:List[str])->None:
         self.paths = data_files
         self.length = len(self.paths)
-
+        
         self.transform = T.Compose([
             T.ToTensor(),                     # [0,1]
           ])
