@@ -1,3 +1,4 @@
+from typing import List
 from pathlib import Path
 from PIL import Image
 from torch.utils.data import Dataset, DataLoader
@@ -5,8 +6,8 @@ import torchvision.transforms as T
 import torch
 
 class CustomDataset(Dataset):
-    def __init__(self, data_dir:str, image_size:int=256)->None:
-        self.paths = list(Path(data_dir).glob("*.jpg"))
+    def __init__(self, data_files:List[str])->None:
+        self.paths = data_files
         self.length = len(self.paths)
 
         self.transform = T.Compose([
