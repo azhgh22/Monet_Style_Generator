@@ -1,0 +1,2 @@
+class CycleGan:
+  pass
