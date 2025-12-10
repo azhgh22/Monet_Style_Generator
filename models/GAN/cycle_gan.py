@@ -1,45 +1,19 @@
 import torch
 import itertools
-import random
-
-# -------------------------------------------
-#  Image Buffer (for discriminator smoothing)
-# -------------------------------------------
-class ImagePool:
-    def __init__(self, size=50):
-        self.size = size
-        self.pool = []
-
-    def query(self, images):
-        """Return images from history or add new ones."""
-        result = []
-        for img in images:
-            img = img.unsqueeze(0)
-            if len(self.pool) < self.size:
-                self.pool.append(img)
-                result.append(img)
-            else:
-                if random.random() > 0.5:
-                    idx = random.randint(0, self.size - 1)
-                    tmp = self.pool[idx].clone()
-                    self.pool[idx] = img
-                    result.append(tmp)
-                else:
-                    result.append(img)
-        return torch.cat(result, dim=0)
+from utils.image_pool import ImagePool
 
 # ---------------------------------------------------
 #              CycleGAN Class
 # ---------------------------------------------------
-class CycleGAN:
-    def __init__(self, G_AB, G_BA, D_A, D_B, device="cuda"):
+class CycleGAN(torch.nn.Module):
+    def __init__(self, G_AB, G_BA, D_A, D_B):
+        super().__init__()
+        self.G_AB = G_AB
+        self.G_BA = G_BA
+        self.D_A  = D_A
+        self.D_B  = D_B
 
-        self.G_AB = G_AB.to(device)
-        self.G_BA = G_BA.to(device)
-        self.D_A  = D_A.to(device)
-        self.D_B  = D_B.to(device)
-
-        self.device = device
+        # self.device = device
 
         # Loss functions
         self.criterion_GAN = torch.nn.MSELoss()
@@ -83,8 +57,6 @@ class CycleGAN:
     #          Single training step
     # ---------------------------------------------------
     def train_step(self, real_A, real_B):
-        real_A = real_A.to(self.device)
-        real_B = real_B.to(self.device)
 
         # ===============================
         #   Train Generators G_AB + G_BA
