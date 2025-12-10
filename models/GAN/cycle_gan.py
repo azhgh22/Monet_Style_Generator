@@ -157,7 +157,7 @@ class CycleGAN(torch.nn.Module):
             "D_B": loss_D_B.item(),
         }
     
-    def echo_step(self):
+    def epoch_step(self):
       self.lr_scheduler_G.step()
       self.lr_scheduler_D_A.step()
       self.lr_scheduler_D_B.step()
