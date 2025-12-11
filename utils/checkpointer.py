@@ -22,8 +22,9 @@ class Checkpointer:
 
         if self.del_prev:
           for fl in os.listdir(self.checkpoint_dir):
-            if fl != filename:
-                os.remove(os.path.join(self.checkpoint_dir, fl))
+            path = os.path.join(self.checkpoint_dir, fl)
+            if os.path.isfile(path) and fl != filename:
+                os.remove(path)
 
 
 

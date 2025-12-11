@@ -17,7 +17,7 @@ class Train:
         "idt_A": 0.0, "idt_B": 0.0,
         "D_A": 0.0, "D_B": 0.0
       }
-
+      num_batches = 0
       for p,m in self.train_loader:
         # Send data to device
         p = p.to(self.device)
@@ -31,6 +31,7 @@ class Train:
             epoch_losses[k] += losses[k]
 
         num_batches += 1
+        print(num_batches)
 
       # Average losses over epoch
       for k in epoch_losses:
@@ -42,7 +43,7 @@ class Train:
         print(f"Epoch: {epoch} ",epoch_losses)
 
       self.chechpointer.save(epoch,{
-        "model_state" : self.model.get_model_state(),
+        "model_state" : self.model.get_model_state(epoch),
         "epoch_losses" : self.epoch_losses,
         "current_epoch" : epoch
       })
