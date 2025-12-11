@@ -24,6 +24,12 @@ class Train:
         m = m.to(self.device)
 
         # Perform one training step
+        # losses = {
+        #   "G": 0.0, "GAN_AB": 0.0, "GAN_BA": 0.0,
+        #   "cycle_A": 0.0, "cycle_B": 0.0,
+        #   "idt_A": 0.0, "idt_B": 0.0,
+        #   "D_A": 0.0, "D_B": 0.0
+        # }
         losses = self.model.train_step(p, m)
 
         # Accumulate losses for logging
@@ -31,7 +37,8 @@ class Train:
             epoch_losses[k] += losses[k]
 
         num_batches += 1
-        print(num_batches)
+        if(num_batches%500==0):
+          print(num_batches)
 
       # Average losses over epoch
       for k in epoch_losses:
