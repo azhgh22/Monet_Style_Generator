@@ -11,8 +11,9 @@ class CustomDataset(Dataset):
         self.length = len(self.paths)
         
         self.transform = T.Compose([
-            T.RandomResizedCrop(self.crop_size, scale=(0.8, 1.0), ratio=(1.0, 1.0)),
+            T.RandomResizedCrop(256, scale=(0.8, 1.0), ratio=(1.0, 1.0)),
             T.ToTensor(),                     # [0,1]
+            T.ConvertImageDtype(torch.float)
           ])
 
     def __len__(self):
