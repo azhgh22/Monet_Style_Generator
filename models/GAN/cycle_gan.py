@@ -176,3 +176,6 @@ class CycleGAN(torch.nn.Module):
             "sched_D_A": self.lr_scheduler_D_A.state_dict(),
             "sched_D_B": self.lr_scheduler_D_B.state_dict(),
         }
+
+    def load_state(self, state_dict):
+      pass
