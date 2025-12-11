@@ -9,7 +9,7 @@ class Train:
     self.epoch_losses = []
     self.current_epoch = 1
 
-  def train(self):
+  def train(self,verbose=True):
     for epoch in range(self.current_epoch, self.num_epochs+1):
       epoch_losses = {
         "G": 0.0, "GAN_AB": 0.0, "GAN_BA": 0.0,
@@ -38,6 +38,8 @@ class Train:
 
       self.epoch_losses.append(epoch_losses)
       self.model.epoch_step()
+      if verbose:
+        print(f"Epoch: {epoch} ",epoch_losses)
 
       self.chechpointer.save(epoch,{
         "model_state" : self.model.get_model_state(),
