@@ -177,5 +177,21 @@ class CycleGAN(torch.nn.Module):
             "sched_D_B": self.lr_scheduler_D_B.state_dict(),
         }
 
-    def load_state(self, state_dict):
-      pass
+    def load_state(self, checkpoint):
+      # Load model weights
+      self.G_AB.load_state_dict(checkpoint["G_AB"])
+      self.G_BA.load_state_dict(checkpoint["G_BA"])
+      self.D_A.load_state_dict(checkpoint["D_A"])
+      self.D_B.load_state_dict(checkpoint["D_B"])
+
+      # Load optimizers
+      self.optimizer_G.load_state_dict(checkpoint["opt_G"])
+      self.optimizer_D_A.load_state_dict(checkpoint["opt_D_A"])
+      self.optimizer_D_B.load_state_dict(checkpoint["opt_D_B"])
+
+      # Load schedulers
+      self.lr_scheduler_G.load_state_dict(checkpoint["sched_G"])
+      self.lr_scheduler_D_A.load_state_dict(checkpoint["sched_D_A"])
+      self.lr_scheduler_D_B.load_state_dict(checkpoint["sched_D_B"])
+
+

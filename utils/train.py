@@ -49,8 +49,10 @@ class Train:
 
   def load_checkpoint(self):
     persist_dict = self.chechpointer.load()
+    if persist_dict == None:
+      return
     self.epoch_losses = persist_dict["epoch_losses"]
-    self.current_epoch = persist_dict["current_epoch"]
+    self.current_epoch = persist_dict["current_epoch"] + 1
     self.model.load_state(persist_dict["model_state"])
 
 
