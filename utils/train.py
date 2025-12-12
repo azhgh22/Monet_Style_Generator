@@ -11,12 +11,8 @@ class Train:
 
   def train(self,verbose=True):
     for epoch in range(self.current_epoch, self.num_epochs+1):
-      epoch_losses = {
-        "G": 0.0, "GAN_AB": 0.0, "GAN_BA": 0.0,
-        "cycle_A": 0.0, "cycle_B": 0.0,
-        "idt_A": 0.0, "idt_B": 0.0,
-        "D_A": 0.0, "D_B": 0.0
-      }
+      epoch_losses = self.model.get_init_loss_dict()
+
       num_batches = 0
       for p,m in self.train_loader:
         # Send data to device
@@ -24,12 +20,6 @@ class Train:
         m = m.to(self.device)
 
         # Perform one training step
-        # losses = {
-        #   "G": 0.0, "GAN_AB": 0.0, "GAN_BA": 0.0,
-        #   "cycle_A": 0.0, "cycle_B": 0.0,
-        #   "idt_A": 0.0, "idt_B": 0.0,
-        #   "D_A": 0.0, "D_B": 0.0
-        # }
         losses = self.model.train_step(p, m)
 
         # Accumulate losses for logging
@@ -57,8 +47,9 @@ class Train:
 
     return self.epoch_losses
 
-  def load_checkpoint(self):
-    persist_dict = self.chechpointer.load()
+  # -1 = load chechpoint of maximum epoch num
+  def load_checkpoint(self,epoch_num = -1):
+    persist_dict = self.chechpointer.load(epoch_num)
     if persist_dict == None:
       return
     self.epoch_losses = persist_dict["epoch_losses"]

@@ -6,15 +6,16 @@ import torchvision.transforms as T
 import torch
 
 class CustomDataset(Dataset):
-    def __init__(self, data_files:List[str])->None:
+    def __init__(self, data_files:List[str],transforms = None)->None:
         self.paths = data_files
         self.length = len(self.paths)
-        
-        self.transform = T.Compose([
-            T.RandomResizedCrop(256, scale=(0.8, 1.0), ratio=(1.0, 1.0)),
-            T.ToTensor(),                     # [0,1]
-            T.ConvertImageDtype(torch.float)
-          ])
+        if transforms==None:
+          self.transform = T.Compose([
+              T.ToTensor(),
+              T.ConvertImageDtype(torch.float)
+            ]) 
+        else:
+          self.transform = transforms
 
     def __len__(self):
         # unpaired: use max length

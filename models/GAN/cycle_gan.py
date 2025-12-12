@@ -162,6 +162,14 @@ class CycleGAN(torch.nn.Module):
       self.lr_scheduler_D_A.step()
       self.lr_scheduler_D_B.step()
 
+    def get_init_loss_dict(self):
+      return {
+        "G": 0.0, "GAN_AB": 0.0, "GAN_BA": 0.0,
+        "cycle_A": 0.0, "cycle_B": 0.0,
+        "idt_A": 0.0, "idt_B": 0.0,
+        "D_A": 0.0, "D_B": 0.0
+      }
+
     def get_model_state(self, epoch):
         return {
             "epoch": epoch,
