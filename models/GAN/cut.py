@@ -52,8 +52,8 @@ class Cut(nn.Module):
         self.criterion_nce = nn.CrossEntropyLoss()
 
         # Optimizers
-        self.optimizer_G = torch.optim.Adam(self.G.parameters(), lr=0.002, betas=(0.5, 0.999))
-        self.optimizer_D = torch.optim.Adam(self.D.parameters(), lr=0.002, betas=(0.5, 0.999))
+        self.optimizer_G = torch.optim.Adam(self.G.parameters(), lr=0.0002, betas=(0.5, 0.999))
+        self.optimizer_D = torch.optim.Adam(self.D.parameters(), lr=0.0002, betas=(0.5, 0.999))
 
         # Schedulers
         self.lr_scheduler_G = torch.optim.lr_scheduler.LambdaLR(self.optimizer_G, lr_lambda=lambda epoch: 1.0)
@@ -70,18 +70,16 @@ class Cut(nn.Module):
         }
         return mapping[layer_idx]
 
-    def sample_patches(self, feat, num_patches=256):
+    def sample_patches_same(self, feat_q, feat_k, num_patches=256):
         """
-        Randomly sample patches from a feature map
-        feat: (B, C, H, W)
-        returns: (B, C, num_patches)
+        Sample same patch locations from both query (fake) and key (real) features
         """
-        B, C, H, W = feat.shape
+        B, C, H, W = feat_q.shape
         N = H * W
-        feat = feat.view(B, C, -1)
-        idx = torch.randint(0, N, (num_patches,), device=feat.device)
-        feat_sampled = feat[:, :, idx]  # (B, C, num_patches)
-        return feat_sampled
+        idx = torch.randint(0, N, (num_patches,), device=feat_q.device)
+        feat_q = feat_q.view(B, C, -1)[:, :, idx]
+        feat_k = feat_k.view(B, C, -1)[:, :, idx]
+        return feat_q, feat_k
 
     def patchnce_loss(self, feats_q, feats_k):
         """
@@ -120,16 +118,18 @@ class Cut(nn.Module):
         _, feats_fake = self.G.encode(fake_Y)
 
         # Sample patches
-        feats_real_sampled = [self.sample_patches(f) for i, f in enumerate(feats_real) if i in self.nce_layers]
-        feats_fake_sampled = [self.sample_patches(f) for i, f in enumerate(feats_fake) if i in self.nce_layers]
+        feats_real_sampled = []
+        feats_fake_sampled = []
+        for i in self.nce_layers:
+            fq, fk = self.sample_patches_same(feats_fake[i], feats_real[i])
+            feats_fake_sampled.append(fq)
+            feats_real_sampled.append(fk)
 
         loss_nce = self.patchnce_loss(feats_fake_sampled, feats_real_sampled)
 
         # ----- Identity Loss -----
         idt_Y = self.G(real_Y)
-        _, feats_idt = self.G.encode(idt_Y)
-        feats_idt_sampled = [self.sample_patches(f) for i, f in enumerate(feats_idt) if i in self.nce_layers]
-        loss_idt = self.patchnce_loss(feats_idt_sampled, feats_idt_sampled)  # identity
+        loss_idt = F.l1_loss(idt_Y, real_Y)
 
         loss_G = loss_gan + self.lambda_nce * loss_nce + self.lambda_identity * loss_idt
         loss_G.backward()
