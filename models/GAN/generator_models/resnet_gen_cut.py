@@ -25,7 +25,7 @@ class ResidualBlock(nn.Module):
 # -----------------------------
 # CUT-friendly Generator
 # -----------------------------
-class ResnetGenerator(nn.Module):
+class ResnetGeneratorCut(nn.Module):
     def __init__(self, input_channels=3, output_channels=3, num_residual_blocks=9):
         super().__init__()
 

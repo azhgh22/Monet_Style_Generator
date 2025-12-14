@@ -29,7 +29,7 @@ class PatchSampleMLP(nn.Module):
 # -----------------------------
 # CUT Model
 # -----------------------------
-class CUT(nn.Module):
+class Cut(nn.Module):
     def __init__(self, generator, discriminator, nce_layers=[0,1,2,3,4], lambda_nce=1.0, lambda_identity=0.5):
         """
         generator: CUT-friendly generator
