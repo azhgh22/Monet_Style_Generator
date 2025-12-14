@@ -83,19 +83,37 @@ class Cut(nn.Module):
 
     def patchnce_loss(self, feats_q, feats_k):
         """
-        feats_q, feats_k: lists of sampled features from real and fake
+        feats_q: list of sampled fake features, each (B, C, N)
+        feats_k: list of sampled real features, each (B, C, N)
         """
-        loss = 0
+        total_loss = 0.0
+        temperature = 0.07
+
         for f_q, f_k, mlp in zip(feats_q, feats_k, self.mlps):
+            # Project + normalize
             q = mlp(f_q)  # (B, N, C)
             k = mlp(f_k)  # (B, N, C)
 
+            # IMPORTANT: stop gradient on keys
+            k = k.detach()
+
             B, N, C = q.shape
-            # InfoNCE
-            logits = torch.bmm(q, k.transpose(1, 2)) / 0.07  # (B, N, N)
-            labels = torch.arange(N, device=q.device).unsqueeze(0).expand(B, N)
-            loss += self.criterion_nce(logits, labels)
-        return loss / len(feats_q)
+
+            # Flatten across batch → global negatives
+            q = q.reshape(B * N, C)  # (BN, C)
+            k = k.reshape(B * N, C)  # (BN, C)
+
+            # InfoNCE logits
+            logits = torch.mm(q, k.t()) / temperature  # (BN, BN)
+
+            # Positive pairs are diagonal
+            labels = torch.arange(B * N, device=q.device)
+
+            loss = self.criterion_nce(logits, labels)
+            total_loss += loss
+
+        return total_loss / len(feats_q)
+
 
     def forward(self, x):
         return self.G(x)
