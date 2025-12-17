@@ -9,7 +9,7 @@ from tqdm import tqdm
 class InceptionFeatureExtractor(nn.Module):
     def __init__(self):
         super().__init__()
-        net = models.inception_v3(pretrained=True, aux_logits=False, transform_input=False)
+        net = models.inception_v3(pretrained=True,transform_input=False)
         net.fc = nn.Identity()  # remove final classifier
         self.net = net.eval()
 
@@ -68,7 +68,6 @@ def compute_dthr(gen_feats, train_feats, epsilon=0.1):
 def evaluate_mifid(
     generator,
     photo_loader,        # input photos
-    monet_train_loader,  # Monet training set (memorization)
     monet_val_loader,    # Monet validation set (FID)
     device,
     epsilon=0.5
@@ -89,11 +88,10 @@ def evaluate_mifid(
     # ----- Extract features -----
     gen_feats   = extract_features(gen_loader, feat_net, device)
     real_feats  = extract_features(monet_val_loader, feat_net, device)
-    train_feats = extract_features(monet_train_loader, feat_net, device)
-
+    
     # ----- Compute metrics -----
     fid = compute_fid(real_feats, gen_feats)
-    d_thr = compute_dthr(gen_feats, train_feats, epsilon)
+    d_thr = compute_dthr(gen_feats, real_feats, epsilon)
     mifid = fid / d_thr
 
     return {
