@@ -6,9 +6,12 @@ import torchvision.transforms as T
 import torch
 
 class CustomDataset(Dataset):
-    def __init__(self, data_files:List[str],transforms = None)->None:
+    def __init__(self, data_files:List[str],transforms = None,size=-1)->None:
         self.paths = data_files
-        self.length = len(self.paths)
+        if size==-1:
+          self.length = len(self.paths)
+        else:
+          self.length = size
         if transforms==None:
           self.transform = T.Compose([
               T.ToTensor(),
