@@ -11,7 +11,7 @@ class CustomDataset(Dataset):
         if size==-1:
           self.length = len(self.paths)
         else:
-          self.length = size
+          self.length = min(size,len(self.paths))
         if transforms==None:
           self.transform = T.Compose([
               T.ToTensor(),
