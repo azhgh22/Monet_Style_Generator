@@ -192,6 +192,7 @@ class Cut(nn.Module):
         "epoch": epoch,
         "G": self.G.state_dict(),
         "D": self.D.state_dict(),
+        "MLP" : self.mlps.state_dict(),
         "opt_G": self.optimizer_G.state_dict(),
         "opt_D": self.optimizer_D.state_dict(),
         "sched_G": self.lr_scheduler_G.state_dict(),
@@ -202,6 +203,7 @@ class Cut(nn.Module):
       # Load model weights
       self.G.load_state_dict(checkpoint["G"])
       self.D.load_state_dict(checkpoint["D"])
+      self.mlps.load_state_dict(checkpoint["MLP"])
 
       # Load optimizer states
       self.optimizer_G.load_state_dict(checkpoint["opt_G"])
