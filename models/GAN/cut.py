@@ -53,7 +53,6 @@ class Cut(nn.Module):
         self.criterion_nce = nn.CrossEntropyLoss()
 
         # Image buffers
-        self.fake_A_pool = ImagePool(50)
         self.fake_B_pool = ImagePool(50)
 
         # Optimizers
@@ -162,14 +161,34 @@ class Cut(nn.Module):
         # Train Discriminator
         # ----------------------
         self.optimizer_D.zero_grad()
+
+        # Real images
         pred_real = self.D(real_Y)
-        pred_fake = self.D(fake_Y.detach())
         target_real = torch.ones_like(pred_real)
+
+        # Fake images (from pool)
+        fake_Y_pool = self.fake_B_pool.query(fake_Y.detach())
+        pred_fake = self.D(fake_Y_pool)
         target_fake = torch.zeros_like(pred_fake)
-        loss_D = 0.5 * (self.criterion_gan(pred_real, target_real) +
-                        self.criterion_gan(pred_fake, target_fake))
+
+        loss_D = 0.5 * (
+            self.criterion_gan(pred_real, target_real) +
+            self.criterion_gan(pred_fake, target_fake)
+        )
+
         loss_D.backward()
         self.optimizer_D.step()
+
+
+        # self.optimizer_D.zero_grad()
+        # pred_real = self.D(real_Y)
+        # pred_fake = self.D(fake_Y.detach())
+        # target_real = torch.ones_like(pred_real)
+        # target_fake = torch.zeros_like(pred_fake)
+        # loss_D = 0.5 * (self.criterion_gan(pred_real, target_real) +
+        #                 self.criterion_gan(pred_fake, target_fake))
+        # loss_D.backward()
+        # self.optimizer_D.step()
 
         return {
             "G": loss_G.item(),
