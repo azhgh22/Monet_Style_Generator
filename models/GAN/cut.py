@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import random
 import itertools
+from utils.image_pool import ImagePool
 
 # -----------------------------
 # MLP Head for PatchNCE
@@ -50,6 +51,10 @@ class Cut(nn.Module):
         # Losses
         self.criterion_gan = nn.MSELoss()
         self.criterion_nce = nn.CrossEntropyLoss()
+
+        # Image buffers
+        self.fake_A_pool = ImagePool(50)
+        self.fake_B_pool = ImagePool(50)
 
         # Optimizers
         self.optimizer_G = torch.optim.Adam(self.G.parameters(), lr=0.0002, betas=(0.5, 0.999))
