@@ -31,13 +31,26 @@ class PatchSampleMLP(nn.Module):
 # CUT Model
 # -----------------------------
 class Cut(nn.Module):
-    def __init__(self, generator, discriminator, nce_layers=[0,1,2,3,4], lambda_nce=1.0, lambda_identity=0.5):
+    def __init__(self, generator, discriminator, nce_layers=[0,1,2,3,4], lambda_nce=1.0, lambda_identity=0.5,layer_chanels_maping=None):
         """
         generator: CUT-friendly generator
         discriminator: PatchGAN discriminator
         nce_layers: which encoder features to use for PatchNCE
         """
         super().__init__()
+
+        if layer_chanels_maping==None:
+          self.mapping = mapping = {
+            0: 64,   # enc_conv1
+            1: 128,  # enc_down1
+            2: 256,  # enc_down2
+            3: 256,  # resblock 0
+            4: 256   # resblock 4
+          }
+        else:
+          self.mapping = layer_chanels_maping
+
+
         self.G = generator
         self.D = discriminator
 
@@ -65,14 +78,7 @@ class Cut(nn.Module):
 
     def _get_layer_channels(self, layer_idx):
         # channels for selected encoder layers
-        mapping = {
-            0: 64,   # enc_conv1
-            1: 128,  # enc_down1
-            2: 256,  # enc_down2
-            3: 256,  # resblock 0
-            4: 256   # resblock 4
-        }
-        return mapping[layer_idx]
+        return self.mapping[layer_idx]
 
     def sample_patches_same(self, feat_q, feat_k, num_patches=256):
         """

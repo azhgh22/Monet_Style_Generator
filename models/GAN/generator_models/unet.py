@@ -70,15 +70,15 @@ class UNetGeneratorCUT(nn.Module):
         bottleneck, feats = self.encode(x)
 
         d4 = self.up4(bottleneck)
-        d4 = self.dec4(torch.cat([d4, feats[3]], dim=1))
+        d4 = self.dec4(torch.cat([d4, feats[3]], dim=0))
 
         d3 = self.up3(d4)
-        d3 = self.dec3(torch.cat([d3, feats[2]], dim=1))
+        d3 = self.dec3(torch.cat([d3, feats[2]], dim=0))
 
         d2 = self.up2(d3)
-        d2 = self.dec2(torch.cat([d2, feats[1]], dim=1))
+        d2 = self.dec2(torch.cat([d2, feats[1]], dim=0))
 
         d1 = self.up1(d2)
-        d1 = self.dec1(torch.cat([d1, feats[0]], dim=1))
+        d1 = self.dec1(torch.cat([d1, feats[0]], dim=0))
 
         return torch.tanh(self.out(d1))
