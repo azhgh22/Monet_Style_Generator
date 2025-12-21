@@ -133,7 +133,6 @@ class Cut(nn.Module):
         # Train Generator
         # ----------------------
         self.optimizer_G.zero_grad()
-
         fake_Y = self.G(real_X)
 
         # ----- GAN Loss -----
