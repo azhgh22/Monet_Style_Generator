@@ -18,16 +18,16 @@ class UNetGeneratorCUT(nn.Module):
 
         # ---------- Decoder ----------
         self.up4 = self.up_block(base * 8, base * 8)
-        self.dec4 = self.conv_block(base * 16, base * 4)
+        self.dec4 = self.conv_block(base * 8, base * 4)
 
         self.up3 = self.up_block(base * 4, base * 4)
-        self.dec3 = self.conv_block(base * 8, base * 2)
+        self.dec3 = self.conv_block(base * 4, base * 2)
 
         self.up2 = self.up_block(base * 2, base * 2)
-        self.dec2 = self.conv_block(base * 4, base)
+        self.dec2 = self.conv_block(base * 2, base)
 
         self.up1 = self.up_block(base, base)
-        self.dec1 = self.conv_block(base * 2, base)
+        self.dec1 = self.conv_block(base, base)
 
         self.out = nn.Conv2d(base, out_ch, kernel_size=1)
 
@@ -72,15 +72,15 @@ class UNetGeneratorCUT(nn.Module):
 
         d4 = self.up4(bottleneck)
         concat = torch.cat([d4, feats[3]], dim=dim)
-        d4 = self.dec4(concat)
+        d4 = self.dec4(d4)
 
         d3 = self.up3(d4)
-        d3 = self.dec3(torch.cat([d3, feats[2]], dim=dim))
+        d3 = self.dec3(d3)
 
         d2 = self.up2(d3)
-        d2 = self.dec2(torch.cat([d2, feats[1]], dim=dim))
+        d2 = self.dec2(d2)
 
         d1 = self.up1(d2)
-        d1 = self.dec1(torch.cat([d1, feats[0]], dim=dim))
+        d1 = self.dec1(d1)
 
         return self.out(d1)
